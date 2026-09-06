@@ -113,4 +113,17 @@ En desarrollo. Ver [docs/data-model.md](docs/data-model.md) para el modelo de da
 
 ## Cómo ejecutarlo en local
 
-<!-- Lo completaremos en la fase 1 -->
+Requisitos: Java 21, Docker y Maven (incluido con el wrapper).
+
+1. Levantar la base de datos:
+
+   docker compose up -d
+
+2. Arrancar la aplicación:
+
+   ./mvnw spring-boot:run
+
+La API queda en http://localhost:8080
+
+> La base de datos se publica en el puerto **5433** del host (no en el 5432)
+> para evitar conflictos con instalaciones locales de PostgreSQL.

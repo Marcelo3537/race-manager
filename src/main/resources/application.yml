@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: race-manager
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/racemanager
+    username: ${DB_USERNAME:racemanager}
+    password: ${DB_PASSWORD:racemanager}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug

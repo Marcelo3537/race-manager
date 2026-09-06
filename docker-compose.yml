@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: race-manager-db
+    environment:
+      POSTGRES_DB: racemanager
+      POSTGRES_USER: racemanager
+      POSTGRES_PASSWORD: racemanager
+    ports:
+      - "5433:5432"
+    volumes:
+      - race-manager-data:/var/lib/postgresql/data
+
+volumes:
+  race-manager-data:
