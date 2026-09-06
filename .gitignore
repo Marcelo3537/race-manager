@@ -1,27 +1,33 @@
-# Maven
+HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
-.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# IDEs
-.idea/
-*.iml
-*.iws
-.vscode/
-.settings/
-.project
+### STS ###
+.apt_generated
 .classpath
-bin/
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# Logs
-*.log
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 
-# Sistema operativo
-.DS_Store
-Thumbs.db
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# Variables de entorno y secretos
-.env
-*.env.local
-application-local.yml
-application-local.properties
+### VS Code ###
+.vscode/
