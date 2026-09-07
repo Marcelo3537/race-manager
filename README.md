@@ -127,3 +127,10 @@ La API queda en http://localhost:8080
 
 > La base de datos se publica en el puerto **5433** del host (no en el 5432)
 > para evitar conflictos con instalaciones locales de PostgreSQL.
+
+
+## Despliegue
+
+URL = https://race-manager-c4pd.onrender.com/
+
+La primera carga puede tardar por el plan gratuito
