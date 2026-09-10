@@ -1,4 +1,4 @@
-package dev.marcelo.racemanager.common.health;
+package dev.marcelo.racemanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
