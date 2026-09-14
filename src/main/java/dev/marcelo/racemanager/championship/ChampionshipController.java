@@ -2,6 +2,7 @@ package dev.marcelo.racemanager.championship;
 
 import dev.marcelo.racemanager.championship.dto.ChampionshipRequest;
 import dev.marcelo.racemanager.championship.dto.ChampionshipResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +39,7 @@ public class ChampionshipController {
 
     @PostMapping
     public ResponseEntity<ChampionshipResponse> create(
-            @RequestBody ChampionshipRequest request,
+            @Valid @RequestBody ChampionshipRequest request,
             UriComponentsBuilder uriBuilder) {
 
         ChampionshipResponse created = service.create(request);
@@ -54,7 +55,7 @@ public class ChampionshipController {
     @PutMapping("/{id}")
     public ChampionshipResponse update(
             @PathVariable Long id,
-            @RequestBody ChampionshipRequest request) {
+            @Valid @RequestBody ChampionshipRequest request) {
 
         return service.update(id, request);
     }
