@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 interface TeamRepository extends JpaRepository<Team, Long> {
 
-    boolean existsByNameIgnoreCaseAndSeason(String name);
+    boolean existsByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }
