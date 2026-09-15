@@ -177,7 +177,6 @@ class ChampionshipControllerTest {
                                 """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("Resource already exists"))
-                .andExpect(jsonPath("$.detail")
-                        .value("Championship 'Formula 1' already exists for season 2026"));
+                .andExpect(jsonPath("$.detail").value("Championship 'Formula 1' already exists for season 2026"));
     }
 }
