@@ -134,3 +134,8 @@ La API queda en http://localhost:8080
 URL = https://race-manager-c4pd.onrender.com/
 
 La primera carga puede tardar por el plan gratuito
+
+
+## Decisiones de diseño
+
+Las decisiones de arquitectura, con sus alternativas y consecuencias, están documentadas en [docs/adr](docs/adr/README.md).
