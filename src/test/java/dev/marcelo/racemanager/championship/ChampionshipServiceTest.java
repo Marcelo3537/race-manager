@@ -3,7 +3,9 @@ package dev.marcelo.racemanager.championship;
 import dev.marcelo.racemanager.championship.dto.ChampionshipRequest;
 import dev.marcelo.racemanager.championship.dto.ChampionshipResponse;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.race.RaceUsageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,9 @@ class ChampionshipServiceTest {
 
     @Mock
     private ChampionshipRepository repository;
+
+    @Mock
+    private RaceUsageService raceUsageService;
 
     @InjectMocks
     private ChampionshipService service;
@@ -85,6 +90,7 @@ class ChampionshipServiceTest {
     @DisplayName("delete removes the championship when it exists")
     void deleteRemovesChampionship() {
         when(repository.existsById(1L)).thenReturn(true);
+        when(raceUsageService.existsForChampionship(1L)).thenReturn(false);
 
         service.delete(1L);
 
@@ -167,5 +173,18 @@ class ChampionshipServiceTest {
                 .hasMessageContaining("Formula 1");
 
         verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the championship has races")
+    void deleteThrowsWhenInUse() {
+        when(repository.existsById(1L)).thenReturn(true);
+        when(raceUsageService.existsForChampionship(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("races");
+
+        verify(repository, never()).deleteById(anyLong());
     }
 }

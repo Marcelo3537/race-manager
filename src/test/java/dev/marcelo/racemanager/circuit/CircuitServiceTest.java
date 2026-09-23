@@ -3,7 +3,9 @@ package dev.marcelo.racemanager.circuit;
 import dev.marcelo.racemanager.circuit.dto.CircuitRequest;
 import dev.marcelo.racemanager.circuit.dto.CircuitResponse;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.race.RaceUsageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,9 @@ class CircuitServiceTest {
 
     @Mock
     private CircuitRepository repository;
+
+    @Mock
+    private RaceUsageService raceUsageService;
 
     @InjectMocks
     private CircuitService service;
@@ -150,9 +155,10 @@ class CircuitServiceTest {
     }
 
     @Test
-    @DisplayName("delete removes the circuit when it exists")
+    @DisplayName("delete removes the circuit when it exists and has no races")
     void deleteRemovesCircuit() {
         when(repository.existsById(1L)).thenReturn(true);
+        when(raceUsageService.existsForCircuit(1L)).thenReturn(false);
 
         service.delete(1L);
 
@@ -167,6 +173,19 @@ class CircuitServiceTest {
         assertThatThrownBy(() -> service.delete(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("999");
+
+        verify(repository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the circuit has races")
+    void deleteThrowsWhenInUse() {
+        when(repository.existsById(1L)).thenReturn(true);
+        when(raceUsageService.existsForCircuit(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("races");
 
         verify(repository, never()).deleteById(anyLong());
     }

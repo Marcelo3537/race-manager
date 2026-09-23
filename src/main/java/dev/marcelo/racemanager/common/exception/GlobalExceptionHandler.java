@@ -80,4 +80,12 @@ public class GlobalExceptionHandler {
         problem.setTitle("Invalid request body");
         return problem;
     }
+
+    @ExceptionHandler(ResourceInUseException.class)
+    public ProblemDetail handleResourceInUse(ResourceInUseException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Resource in use");
+        return problem;
+    }
 }

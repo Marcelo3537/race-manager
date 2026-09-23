@@ -3,7 +3,9 @@ package dev.marcelo.racemanager.championship;
 import dev.marcelo.racemanager.championship.dto.ChampionshipRequest;
 import dev.marcelo.racemanager.championship.dto.ChampionshipResponse;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.race.RaceUsageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +19,11 @@ public class ChampionshipService {
 
     private final ChampionshipRepository repository;
 
-    public ChampionshipService(ChampionshipRepository repository) {
+    private final RaceUsageService raceUsageService;
+
+    public ChampionshipService(ChampionshipRepository repository, RaceUsageService raceUsageService) {
         this.repository = repository;
+        this.raceUsageService = raceUsageService;
     }
 
     public List<ChampionshipResponse> findAll() {
@@ -76,6 +81,10 @@ public class ChampionshipService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(RESOURCE, id);
         }
+        if (raceUsageService.existsForChampionship(id)) {
+            throw new ResourceInUseException(
+                    "Championship %d cannot be deleted because it has races".formatted(id));
+        }
         repository.deleteById(id);
     }
 
@@ -86,5 +95,11 @@ public class ChampionshipService {
                 championship.getSeason(),
                 championship.getCountry(),
                 championship.getStatus());
+    }
+
+    @Transactional(readOnly = true)
+    public Championship getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
     }
 }

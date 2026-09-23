@@ -3,7 +3,9 @@ package dev.marcelo.racemanager.circuit;
 import dev.marcelo.racemanager.circuit.dto.CircuitRequest;
 import dev.marcelo.racemanager.circuit.dto.CircuitResponse;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.race.RaceUsageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +19,11 @@ public class CircuitService {
 
     private final CircuitRepository repository;
 
-    public CircuitService(CircuitRepository repository) {
+    private final RaceUsageService raceUsageService;
+
+    public CircuitService(CircuitRepository repository, RaceUsageService raceUsageService) {
         this.repository = repository;
+        this.raceUsageService = raceUsageService;
     }
 
     public List<CircuitResponse> findAll() {
@@ -73,6 +78,10 @@ public class CircuitService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(RESOURCE, id);
         }
+        if (raceUsageService.existsForCircuit(id)) {
+            throw new ResourceInUseException(
+                    "Circuit %d cannot be deleted because it has races".formatted(id));
+        }
         repository.deleteById(id);
     }
 
@@ -83,5 +92,11 @@ public class CircuitService {
                 circuit.getCountry(),
                 circuit.getCity(),
                 circuit.getLengthKm());
+    }
+
+    @Transactional(readOnly = true)
+    public Circuit getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
     }
 }
