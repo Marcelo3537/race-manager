@@ -32,6 +32,8 @@ Cada fichero de esta carpeta documenta **una** decisión de diseño de Race Mana
 | [0024](0024-resultados-vinculados-a-la-inscripcion.md) | Los resultados apuntan a la inscripción | Aceptada, pendiente de implementar |
 | [0025](0025-reglas-de-puntuacion-configurables.md) | Reglas de puntuación configurables por campeonato | Aceptada, pendiente de implementar |
 | [0026](0026-dependencias-entre-servicios.md) | Dependencias entre servicios en un solo sentido | Aceptada |
+| [0027](0027-relaciones-unidireccionales-y-borrado-restringido.md) | Relaciones unidireccionales, carga perezosa y borrado restringido | Aceptada |
+| [0028](0028-instantes-con-zona-horaria.md) | Instantes con zona horaria para fechas de eventos | Aceptada |
 
 ## Qué merece un ADR
 
