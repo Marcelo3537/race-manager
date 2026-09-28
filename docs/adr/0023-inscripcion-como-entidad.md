@@ -1,6 +1,6 @@
 # 0023 — La inscripción en un campeonato es una entidad
 
-- **Estado:** Aceptada, pendiente de implementar
+- **Estado:** Aceptada
 - **Fecha:** septiembre de 2026
 - **Relacionadas:** [0024](0024-resultados-vinculados-a-la-inscripcion.md)
 
@@ -32,3 +32,5 @@ Una entidad `championship_entry` con `championship_id`, `driver_id`, `team_id` y
 **Negativas o costes**
 
 - Una entidad más, con restricciones únicas compuestas que se definirán al implementarla.
+
+Implementado en la fase 8: tabla `championship_entry` con `UNIQUE (championship_id, driver_id)` y `UNIQUE (championship_id, car_number)`, expuesta como recurso anidado ([0029](0029-rutas-anidadas-para-recursos-dependientes.md)) con el equipo obligatorio ([0030](0030-equipo-obligatorio-en-las-inscripciones.md)).

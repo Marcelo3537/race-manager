@@ -28,12 +28,14 @@ Cada fichero de esta carpeta documenta **una** decisión de diseño de Race Mana
 | [0020](0020-configuracion-por-entorno.md) | Configuración por variables de entorno y perfiles | Aceptada |
 | [0021](0021-despliegue-render-y-neon.md) | Despliegue en Render con la base de datos en Neon | Aceptada |
 | [0022](0022-flujo-de-trabajo-con-git.md) | Flujo de trabajo con Git | Aceptada |
-| [0023](0023-inscripcion-como-entidad.md) | La inscripción en un campeonato es una entidad | Aceptada, pendiente de implementar |
+| [0023](0023-inscripcion-como-entidad.md) | La inscripción en un campeonato es una entidad | Aceptada |
 | [0024](0024-resultados-vinculados-a-la-inscripcion.md) | Los resultados apuntan a la inscripción | Aceptada, pendiente de implementar |
 | [0025](0025-reglas-de-puntuacion-configurables.md) | Reglas de puntuación configurables por campeonato | Aceptada, pendiente de implementar |
 | [0026](0026-dependencias-entre-servicios.md) | Dependencias entre servicios en un solo sentido | Aceptada |
 | [0027](0027-relaciones-unidireccionales-y-borrado-restringido.md) | Relaciones unidireccionales, carga perezosa y borrado restringido | Aceptada |
 | [0028](0028-instantes-con-zona-horaria.md) | Instantes con zona horaria para fechas de eventos | Aceptada |
+| [0029](0029-rutas-anidadas-para-recursos-dependientes.md) | Rutas anidadas para recursos dependientes | Aceptada |
+| [0030](0030-equipo-obligatorio-en-las-inscripciones.md) | Equipo obligatorio en las inscripciones | Aceptada |
 
 ## Qué merece un ADR
 
