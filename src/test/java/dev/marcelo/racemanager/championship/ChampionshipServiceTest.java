@@ -5,6 +5,7 @@ import dev.marcelo.racemanager.championship.dto.ChampionshipResponse;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
 import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.entry.ChampionshipEntryUsageService;
 import dev.marcelo.racemanager.race.RaceUsageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class ChampionshipServiceTest {
 
     @Mock
     private RaceUsageService raceUsageService;
+
+    @Mock
+    private ChampionshipEntryUsageService entryUsageService;
 
     @InjectMocks
     private ChampionshipService service;
@@ -87,10 +91,11 @@ class ChampionshipServiceTest {
     }
 
     @Test
-    @DisplayName("delete removes the championship when it exists")
+    @DisplayName("delete removes the championship when it exists and has no races or entries")
     void deleteRemovesChampionship() {
         when(repository.existsById(1L)).thenReturn(true);
         when(raceUsageService.existsForChampionship(1L)).thenReturn(false);
+        when(entryUsageService.existsForChampionship(1L)).thenReturn(false);
 
         service.delete(1L);
 
@@ -184,6 +189,20 @@ class ChampionshipServiceTest {
         assertThatThrownBy(() -> service.delete(1L))
                 .isInstanceOf(ResourceInUseException.class)
                 .hasMessageContaining("races");
+
+        verify(repository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the championship has entries")
+    void deleteThrowsWhenHasEntries() {
+        when(repository.existsById(1L)).thenReturn(true);
+        when(raceUsageService.existsForChampionship(1L)).thenReturn(false);
+        when(entryUsageService.existsForChampionship(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("entries");
 
         verify(repository, never()).deleteById(anyLong());
     }

@@ -1,8 +1,10 @@
 package dev.marcelo.racemanager.driver;
 
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.driver.dto.DriverRequest;
 import dev.marcelo.racemanager.driver.dto.DriverResponse;
+import dev.marcelo.racemanager.entry.ChampionshipEntryUsageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,9 @@ class DriverServiceTest {
 
     @Mock
     private DriverRepository repository;
+
+    @Mock
+    private ChampionshipEntryUsageService entryUsageService;
 
     @InjectMocks
     private DriverService service;
@@ -119,9 +124,10 @@ class DriverServiceTest {
     }
 
     @Test
-    @DisplayName("delete removes the driver when it exists")
+    @DisplayName("delete removes the driver when it exists and has no entries")
     void deleteRemovesDriver() {
         when(repository.existsById(1L)).thenReturn(true);
+        when(entryUsageService.existsForDriver(1L)).thenReturn(false);
 
         service.delete(1L);
 
@@ -136,6 +142,19 @@ class DriverServiceTest {
         assertThatThrownBy(() -> service.delete(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("999");
+
+        verify(repository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the driver has championship entries")
+    void deleteThrowsWhenHasEntries() {
+        when(repository.existsById(1L)).thenReturn(true);
+        when(entryUsageService.existsForDriver(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("entries");
 
         verify(repository, never()).deleteById(anyLong());
     }
