@@ -2,7 +2,9 @@ package dev.marcelo.racemanager.team;
 
 import java.util.List;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
+import dev.marcelo.racemanager.entry.ChampionshipEntryUsageService;
 import dev.marcelo.racemanager.team.dto.TeamRequest;
 import dev.marcelo.racemanager.team.dto.TeamResponse;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,11 @@ public class TeamService {
     private static final String RESOURCE = "Team";
 
     private final TeamRepository repository;
+    private final ChampionshipEntryUsageService entryUsageService;
 
-    public TeamService(TeamRepository repository) {
+    public TeamService(TeamRepository repository, ChampionshipEntryUsageService entryUsageService) {
         this.repository = repository;
+        this.entryUsageService = entryUsageService;
     }
 
     public List<TeamResponse> findAll() {
@@ -71,6 +75,10 @@ public class TeamService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(RESOURCE, id);
         }
+        if (entryUsageService.existsForTeam(id)) {
+            throw new ResourceInUseException(
+                    "Team %d cannot be deleted because it has championship entries".formatted(id));
+        }
         repository.deleteById(id);
     }
 
@@ -81,6 +89,12 @@ public class TeamService {
                 team.getConstructorName(),
                 team.getCountry()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Team getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
     }
 
 }

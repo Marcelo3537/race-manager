@@ -1,8 +1,10 @@
 package dev.marcelo.racemanager.driver;
 
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.driver.dto.DriverRequest;
 import dev.marcelo.racemanager.driver.dto.DriverResponse;
+import dev.marcelo.racemanager.entry.ChampionshipEntryUsageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +17,11 @@ public class DriverService {
     private static final String RESOURCE = "Driver";
 
     private final DriverRepository repository;
+    private final ChampionshipEntryUsageService entryUsageService;
 
-    public DriverService(DriverRepository repository) {
+    public DriverService(DriverRepository repository, ChampionshipEntryUsageService entryUsageService) {
         this.repository = repository;
+        this.entryUsageService = entryUsageService;
     }
 
     public List<DriverResponse> findAll() {
@@ -62,6 +66,10 @@ public class DriverService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(RESOURCE, id);
         }
+        if (entryUsageService.existsForDriver(id)) {
+            throw new ResourceInUseException(
+                    "Driver %d cannot be deleted because it has championship entries".formatted(id));
+        }
         repository.deleteById(id);
     }
 
@@ -72,5 +80,11 @@ public class DriverService {
                 driver.getSurname(),
                 driver.getNationality(),
                 driver.getDateOfBirth());
+    }
+
+    @Transactional(readOnly = true)
+    public Driver getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
     }
 }
