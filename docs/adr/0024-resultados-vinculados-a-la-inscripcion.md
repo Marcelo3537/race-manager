@@ -1,6 +1,6 @@
 # 0024 — Los resultados apuntan a la inscripción
 
-- **Estado:** Aceptada, pendiente de implementar
+- **Estado:** Aceptada
 - **Fecha:** septiembre de 2026
 - **Relacionadas:** [0023](0023-inscripcion-como-entidad.md), [0025](0025-reglas-de-puntuacion-configurables.md)
 
@@ -15,6 +15,8 @@ Ejemplo: Alonso puntúa en 2025 con Aston Martin y en 2026 con Ferrari. La clasi
 `race_result` referencia a `championship_entry`, no a `driver`: `race_id`, `entry_id`, `position`, `points`, `fastest_lap` y `status`. Cada fila es el resultado de **una inscripción en una carrera**; una carrera con veinte pilotos genera veinte filas.
 
 Los puntos los calcula el backend a partir de la posición y de las reglas del campeonato ([0025](0025-reglas-de-puntuacion-configurables.md)); el cliente no los envía.
+
+Implementado en la fase 9: tabla `race_result` con clave foránea a `championship_entry`, y un `RaceResultResponse` que incluye piloto, equipo y número obtenidos a través de la inscripción, sin que el resultado conozca directamente ninguna de esas entidades.
 
 ## Alternativas consideradas
 
