@@ -3,11 +3,13 @@ package dev.marcelo.racemanager.entry;
 import dev.marcelo.racemanager.championship.Championship;
 import dev.marcelo.racemanager.championship.ChampionshipService;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.driver.Driver;
 import dev.marcelo.racemanager.driver.DriverService;
 import dev.marcelo.racemanager.entry.dto.ChampionshipEntryRequest;
 import dev.marcelo.racemanager.entry.dto.ChampionshipEntryResponse;
+import dev.marcelo.racemanager.result.RaceResultUsageService;
 import dev.marcelo.racemanager.team.Team;
 import dev.marcelo.racemanager.team.TeamService;
 import org.springframework.stereotype.Service;
@@ -25,15 +27,18 @@ public class ChampionshipEntryService {
     private final ChampionshipService championshipService;
     private final DriverService driverService;
     private final TeamService teamService;
+    private final RaceResultUsageService resultUsageService;
 
     public ChampionshipEntryService(ChampionshipEntryRepository repository,
                                     ChampionshipService championshipService,
                                     DriverService driverService,
-                                    TeamService teamService) {
+                                    TeamService teamService,
+                                    RaceResultUsageService resultUsageService) {
         this.repository = repository;
         this.championshipService = championshipService;
         this.driverService = driverService;
         this.teamService = teamService;
+        this.resultUsageService = resultUsageService;
     }
 
     public List<ChampionshipEntryResponse> findAllByChampionship(Long championshipId) {
@@ -113,6 +118,11 @@ public class ChampionshipEntryService {
         ChampionshipEntry entry = repository.findByIdAndChampionshipId(id, championshipId)
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
 
+        if (resultUsageService.existsForEntry(id)) {
+            throw new ResourceInUseException(
+                    "Entry %d cannot be deleted because it has race results".formatted(id));
+        }
+
         repository.delete(entry);
     }
 
@@ -127,5 +137,10 @@ public class ChampionshipEntryService {
                 entry.getTeam().getId(),
                 entry.getTeam().getName(),
                 entry.getCarNumber());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChampionshipEntry> getEntitiesByChampionship(Long championshipId) {
+        return repository.findAllByChampionshipIdWithRelations(championshipId);
     }
 }

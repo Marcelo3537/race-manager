@@ -88,4 +88,12 @@ public class GlobalExceptionHandler {
         problem.setTitle("Resource in use");
         return problem;
     }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        problem.setTitle("Business rule violated");
+        return problem;
+    }
 }

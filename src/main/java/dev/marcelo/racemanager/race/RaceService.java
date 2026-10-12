@@ -5,9 +5,11 @@ import dev.marcelo.racemanager.championship.ChampionshipService;
 import dev.marcelo.racemanager.circuit.Circuit;
 import dev.marcelo.racemanager.circuit.CircuitService;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.race.dto.RaceRequest;
 import dev.marcelo.racemanager.race.dto.RaceResponse;
+import dev.marcelo.racemanager.result.RaceResultUsageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,16 @@ public class RaceService {
     private final RaceRepository repository;
     private final ChampionshipService championshipService;
     private final CircuitService circuitService;
+    private final RaceResultUsageService resultUsageService;
 
     public RaceService(RaceRepository repository,
                        ChampionshipService championshipService,
-                       CircuitService circuitService) {
+                       CircuitService circuitService,
+                       RaceResultUsageService resultUsageService) {
         this.repository = repository;
         this.championshipService = championshipService;
         this.circuitService = circuitService;
+        this.resultUsageService = resultUsageService;
     }
 
     public List<RaceResponse> findAll() {
@@ -96,6 +101,11 @@ public class RaceService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException(RESOURCE, id);
         }
+
+        if (resultUsageService.existsForRace(id)) {
+            throw new ResourceInUseException(
+                    "Race %d cannot be deleted because it has results".formatted(id));
+        }
         repository.deleteById(id);
     }
 
@@ -110,5 +120,11 @@ public class RaceService {
                 race.getRound(),
                 race.getScheduledAt(),
                 race.getStatus());
+    }
+
+    @Transactional(readOnly = true)
+    public Race getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, id));
     }
 }

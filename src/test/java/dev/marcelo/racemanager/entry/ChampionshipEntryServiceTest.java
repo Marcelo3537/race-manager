@@ -4,11 +4,13 @@ import dev.marcelo.racemanager.championship.Championship;
 import dev.marcelo.racemanager.championship.ChampionshipService;
 import dev.marcelo.racemanager.championship.ChampionshipStatus;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.driver.Driver;
 import dev.marcelo.racemanager.driver.DriverService;
 import dev.marcelo.racemanager.entry.dto.ChampionshipEntryRequest;
 import dev.marcelo.racemanager.entry.dto.ChampionshipEntryResponse;
+import dev.marcelo.racemanager.result.RaceResultUsageService;
 import dev.marcelo.racemanager.team.Team;
 import dev.marcelo.racemanager.team.TeamService;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +45,9 @@ class ChampionshipEntryServiceTest {
 
     @Mock
     private TeamService teamService;
+
+    @Mock
+    private RaceResultUsageService resultUsageService;
 
     @InjectMocks
     private ChampionshipEntryService service;
@@ -239,10 +244,11 @@ class ChampionshipEntryServiceTest {
     }
 
     @Test
-    @DisplayName("delete removes the entry when it belongs to the championship")
+    @DisplayName("delete removes the entry when it belongs to the championship and has no results")
     void deleteRemovesEntry() {
         ChampionshipEntry existingEntry = entry();
         when(repository.findByIdAndChampionshipId(1L, 8L)).thenReturn(Optional.of(existingEntry));
+        when(resultUsageService.existsForEntry(any())).thenReturn(false);
 
         service.delete(8L, 1L);
 
@@ -256,6 +262,19 @@ class ChampionshipEntryServiceTest {
 
         assertThatThrownBy(() -> service.delete(3L, 1L))
                 .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the entry has race results")
+    void deleteThrowsWhenHasResults() {
+        when(repository.findByIdAndChampionshipId(1L, 8L)).thenReturn(Optional.of(entry()));
+        when(resultUsageService.existsForEntry(any())).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(8L, 1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("results");
 
         verify(repository, never()).delete(any());
     }

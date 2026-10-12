@@ -6,9 +6,11 @@ import dev.marcelo.racemanager.championship.ChampionshipStatus;
 import dev.marcelo.racemanager.circuit.Circuit;
 import dev.marcelo.racemanager.circuit.CircuitService;
 import dev.marcelo.racemanager.common.exception.DuplicateResourceException;
+import dev.marcelo.racemanager.common.exception.ResourceInUseException;
 import dev.marcelo.racemanager.common.exception.ResourceNotFoundException;
 import dev.marcelo.racemanager.race.dto.RaceRequest;
 import dev.marcelo.racemanager.race.dto.RaceResponse;
+import dev.marcelo.racemanager.result.RaceResultUsageService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,9 @@ class RaceServiceTest {
 
     @Mock
     private CircuitService circuitService;
+
+    @Mock
+    private RaceResultUsageService resultUsageService;
 
     @InjectMocks
     private RaceService service;
@@ -208,6 +213,7 @@ class RaceServiceTest {
     @DisplayName("delete removes the race when it exists")
     void deleteRemovesRace() {
         when(repository.existsById(1L)).thenReturn(true);
+        when(resultUsageService.existsForRace(1L)).thenReturn(false);
 
         service.delete(1L);
 
@@ -222,6 +228,19 @@ class RaceServiceTest {
         assertThatThrownBy(() -> service.delete(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("999");
+
+        verify(repository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("delete throws ResourceInUseException when the race has results")
+    void deleteThrowsWhenHasResults() {
+        when(repository.existsById(1L)).thenReturn(true);
+        when(resultUsageService.existsForRace(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ResourceInUseException.class)
+                .hasMessageContaining("results");
 
         verify(repository, never()).deleteById(anyLong());
     }
